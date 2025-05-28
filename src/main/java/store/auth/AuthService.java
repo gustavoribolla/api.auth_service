@@ -19,22 +19,25 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
-    public String register(Register register) {
+    public Register register(Register register) {
         AccountIn accountIn = AccountIn.builder()
             .email(register.email())
             .name(register.name())
             .password(register.password())
             .build();
 
-            
         ResponseEntity<AccountOut> response = accountController.create(accountIn);
         AccountOut accountOut = response.getBody();
 
-        return generateToken(accountOut.id());
+        return Register.builder()
+            .id(accountOut.id())
+            .email(accountOut.email())
+            .name(accountOut.name())
+            .password(register.password())
+            .build();
     }
 
-    public String login(String email, String password) {
-
+    public Register findByEmailAndPassword(String email, String password) {
         ResponseEntity<AccountOut> response = accountController.findByEmailAndPassword(
             AccountIn.builder()
                 .email(email)
@@ -43,14 +46,17 @@ public class AuthService {
         );
         AccountOut accountOut = response.getBody();
 
-        return generateToken(accountOut.id());
+        return Register.builder()
+            .id(accountOut.id())
+            .email(accountOut.email())
+            .name(accountOut.name())
+            .build();
     }
 
-    private String generateToken(String id) {
+    public String generateToken(Register register) {
         Date notBefore = new Date();
-        Date expiration = new Date(notBefore.getTime() + 1000l * 60 * 60 * 24);
-        String token = jwtService.create(id, notBefore, expiration);
-        return token;
+        Date expiration = new Date(notBefore.getTime() + 1000L * 60 * 60 * 24);
+        return jwtService.create(register.id(), notBefore, expiration);
     }
 
     public SolveOut solve(String token) {

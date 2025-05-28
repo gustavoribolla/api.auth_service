@@ -11,11 +11,10 @@ public class AuthParser {
                 .build();
     }
 
-    public static TokenOut to(String id, String token) {
-        return (id == null || token == null) ? null :
-            TokenOut.builder()
-                .id(id)
-                .token(token)
-                .build();
+    public static TokenOut to(Register register, String token) {
+        return TokenOut.builder()
+            .id(register.id())
+            .token(token)
+            .build();
     }
 }
