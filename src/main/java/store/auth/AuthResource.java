@@ -12,14 +12,16 @@ public class AuthResource implements AuthController {
 
     @Override
     public ResponseEntity<TokenOut> register(RegisterIn registerIn) {
-        String token = authService.register(AuthParser.to(registerIn));
-        return ResponseEntity.ok().body(AuthParser.to(token));
+        Register saved = authService.register(AuthParser.to(registerIn));
+        String token = authService.generateToken(saved);
+        return ResponseEntity.ok().body(AuthParser.to(saved.id(), token));
     }
 
     @Override
     public ResponseEntity<TokenOut> login(LoginIn loginIn) {
-        String token = authService.login(loginIn.email(), loginIn.password());
-        return ResponseEntity.ok().body(AuthParser.to(token));
+        Register user = authService.findByEmailAndPassword(loginIn.email(), loginIn.password());
+        String token = authService.generateToken(user);
+        return ResponseEntity.ok().body(AuthParser.to(user.id(), token));
     }
 
     @Override
